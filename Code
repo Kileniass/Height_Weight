@@ -1,0 +1,87 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.metrics import silhouette_score, precision_score
+
+# Загрузка данных
+df = pd.read_csv('/content/weight-height.csv')
+print(df)
+
+# Преобразование столбца 'Gender' в категорию и кодирование
+df["Gender"].value_counts()
+df["Gender"] = df["Gender"].astype('category')
+df["Gender_code"] = df["Gender"].cat.codes
+del df['Gender']
+print(df)
+
+# Преобразование высоты и веса
+df['Height'] = df.Height * 2.54
+df['Weight'] = df.Weight * 0.45
+print(df)
+
+# Разделение на мужские и женские данные
+df_fem = df.iloc[5001:10000, : ]
+df_man = df.iloc[0:5000, : ]
+
+# Описание данных
+des_m = df_man.describe()
+des_f = df_fem.describe()
+print(des_m)
+print(des_f)
+
+# Построение графиков
+plt.hist(df_man['Height'], bins=20, color='skyblue')
+plt.xlabel('Height')
+plt.ylabel('Frequency')
+plt.title('Distribution of Height')
+plt.show()
+
+plt.hist(df_man['Weight'], bins=20, color='skyblue')
+plt.xlabel('Weight')
+plt.ylabel('Frequency')
+plt.title('Distribution of Weight')
+plt.show()
+
+plt.hist(df_man['Height'], bins=20, color='skyblue')
+plt.xlabel('Height')
+plt.ylabel('Frequency')
+plt.title('Distribution of Height')
+plt.show()
+
+plt.hist(df_fem['Weight'], bins=20, color='skyblue')
+plt.xlabel('Weight')
+plt.ylabel('Frequency')
+plt.title('Distribution of Weight')
+plt.show()
+
+plt.hist(df['Height'], bins=20, color='skyblue')
+plt.xlabel('Height')
+plt.ylabel('Frequency')
+plt.title('Distribution of Height')
+plt.show()
+
+plt.hist(df['Weight'], bins=20, color='skyblue')
+plt.xlabel('Weight')
+plt.ylabel('Frequency')
+plt.title('Distribution of Weight')
+plt.show()
+
+# Кластеризация KMeans
+kmeans = KMeans(n_clusters=2)
+kmeans.fit(df[['Height', 'Weight']])
+df['KMeans_Cluster'] = kmeans.labels_
+print(df)
+
+# Кластеризация Agglomerative
+agglomerative = AgglomerativeClustering(n_clusters=2)
+agglomerative.fit(df[['Height', 'Weight']])
+df['Agglomerative_Cluster'] = agglomerative.labels_
+print(df)
+
+# Оценка точности
+kmeans_precision = precision_score(df['Gender_code'], kmeans.labels_, average='weighted')
+print("KMeans точность:", kmeans_precision)
+
+agglomerative_precision = precision_score(df['Gender_code'], agglomerative.labels_, average='weighted')
+print("Agglomerative точность:", agglomerative_precision)
